@@ -1,21 +1,33 @@
-import { getSession } from "next-auth/react";
-import { GetServerSideProps } from "next";
+import { getSession, signOut } from "next-auth/react";
 
 function HomePage({ session }) {
-  const { user } = session;
   return (
     <div>
-      {JSON.stringify(user)}
-      <h1>{user.name}</h1>
-      <p>{user.email}</p>
-      <img src={user.image} alt={user.name} />
+      {session ? (
+        <div>
+          <h1>{session.user.name}</h1>
+          <p>{session.user.email}</p>
+          <img src={session.user.image} alt="" />
+        </div>
+      ) : (
+        <p>Skeleton</p>
+      )}
+
+      <button onClick={() => signOut()}>Logout</button>
     </div>
   );
 }
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-
+  console.log(session);
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
   return {
     props: {
       session,
